@@ -2,45 +2,82 @@
 
 public class Resource : MonoBehaviour {
 
-    public string resourceName; // Resource's name
-    public int life; // Resource's Life
-    public int quantityValue; // Value of resources that will be added to inventory
-    public ResourcesManager resourcesManager; // ResourcesManager's script
-    public CharactersManager charactersManager; // CharacterManager's script (or the player's script, if there is only on character controlled by the player)
+    // Resource's type
+    public ResourceType type;
 
-    void Start() { 
+    // Resource's Life
+    public int life; 
+    
+    // Value of resources that will be added to inventory
+    public int quantityValue;
+   
+    // ResourcesManager's script
+    public ResourcesManager resourcesManagerScript;
+    
+    // CharacterManager's script (or the player's script, if there is only on character controlled by the player)
+    public CharactersManager charactersManagerScript;
+    void Start() {
 
-        resourcesManager = GameObject.Find("BuildingSystem").GetComponent<ResourcesManager>(); // Find the ResourcesManager's script in a BuildingSystem's GameObject and assign it in the resourcesManager
-        charactersManager = GameObject.Find("Manager").GetComponent<CharactersManager>(); // Find the CharactersManager's script in a Manager's GameObject and assign it in the charactersManager
+        // Find the ResourcesManager's script in a BuildingSystem's GameObject and assign it in the resourcesManager
+        resourcesManagerScript = GameObject.Find("BuildingSystem").GetComponent<ResourcesManager>();
+        
+        // Find the CharactersManager's script in a Manager's GameObject and assign it in the charactersManager
+        charactersManagerScript = GameObject.Find("Manager").GetComponent<CharactersManager>();
     }
 
-    void FixedUpdate() {
+    void Update() {
 
-        VerifyLife(); // Call the VerifyLife's function
+        // Call the VerifyLife's function
+        VerifyLife();
     }
 
-    void AddResourceToManager(string name, int value) { // Add a resource to the player's inventory
+    /// <summary>
+    /// Add a resource to the player's inventory
+    /// </summary>
+    /// <param name="type"> The resource's type </param>
+    /// <param name="value"> The resource's quantity </param>
+    void AddResourceToPlayerInv(ResourceType type, int value) {
 
-        resourcesManager.AddResourceToGroup(name, value); // Call the "AddResourceToGroup" function in the ResourcesManager's script to add the resource to the player's inventory
+        // Call the "AddResources" function in the ResourcesManager's script to add the resource to the player's inventory
+        resourcesManagerScript.AddResources(type, value);
 
-        charactersManager.SetUnitCuttingBool(false); // Call the "SetUnitCuttingBool" function in the CharactersManager's script to cancel the player's interaction animation with the resource
-        charactersManager.RemoveActualResource(); // Call the "RemoveActualResource" function in the CharactersManager's script to remove the target on this resource
+        // Call the "RemoveActualResource" function in the CharactersManager's script to remove the target on this resource
+        charactersManagerScript.RemoveActualResource();
 
-        Destroy(this.gameObject); // Destroy this GameObject (the resource)
+        // Destroy this GameObject (the resource)
+        Destroy(this.gameObject);
     }
 
-    void VerifyLife() { // Resource life's condition
+    /// <summary>
+    /// Resource life's condition
+    /// </summary>
+    void VerifyLife() {
 
         if (life <= 0) {
 
-            AddResourceToManager(resourceName, quantityValue); // Call the "AddResourceToManager" function to add that resource to the player's inventory
+            // Call the "AddResourceToPlayerInv" function to add that resource to the player's inventory
+            AddResourceToPlayerInv(type, quantityValue);
         }
     }
-
-    public void TakeDamage(int damage) { // Decreases that resource's life
+    
+    /// <summary>
+    ///  Decreases that resource's health
+    /// </summary>
+    /// <param name="damage"> The value that will be discounted from life </param>
+    public void TakeDamage(int damage) {
 
         life -= damage;
 
         print(life);
     }
+}
+
+/// <summary>
+/// The resource's type
+/// </summary>
+public enum ResourceType {
+
+    Wood,
+    Stone,
+    Iron
 }
